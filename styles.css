@@ -103,6 +103,20 @@ h1 {
   background: var(--accent-dark);
 }
 
+.todo-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  background: #f7faf8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .clear-button {
   width: 100%;
   margin-top: 18px;

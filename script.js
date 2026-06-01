@@ -3,6 +3,7 @@ const input = document.querySelector("#todo-input");
 const list = document.querySelector("#todo-list");
 const emptyMessage = document.querySelector("#empty-message");
 const clearButton = document.querySelector("#clear-button");
+const stats = document.querySelector("#todo-stats");
 
 const storageKey = "codex-todo-items";
 
@@ -82,6 +83,19 @@ function renderTodos() {
 
   emptyMessage.classList.toggle("hidden", todos.length > 0);
   clearButton.classList.toggle("hidden", todos.length === 0);
+  updateStats();
+}
+
+function updateStats() {
+  const totalCount = todos.length;
+  const completedCount = todos.filter((todo) => todo.completed).length;
+  const activeCount = totalCount - completedCount;
+
+  stats.innerHTML = `
+    <span>全部：${totalCount}</span>
+    <span>已完成：${completedCount}</span>
+    <span>未完成：${activeCount}</span>
+  `;
 }
 
 function saveAndRender() {
