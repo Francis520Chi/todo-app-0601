@@ -4,10 +4,12 @@ const list = document.querySelector("#todo-list");
 const emptyMessage = document.querySelector("#empty-message");
 const clearButton = document.querySelector("#clear-button");
 const stats = document.querySelector("#todo-stats");
+const filterButtons = document.querySelectorAll(".filter-button");
 
 const storageKey = "codex-todo-items";
 
 let todos = loadTodos();
+let currentFilter = "all";
 
 renderTodos();
 
@@ -30,6 +32,14 @@ form.addEventListener("submit", (event) => {
   saveAndRender();
 });
 
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentFilter = button.dataset.filter;
+    updateFilterButtons();
+    renderTodos();
+  });
+});
+
 clearButton.addEventListener("click", () => {
   const confirmed = confirm("確定要清除全部任務嗎？這個動作無法復原。");
 
@@ -44,7 +54,9 @@ clearButton.addEventListener("click", () => {
 function renderTodos() {
   list.innerHTML = "";
 
-  todos.forEach((todo) => {
+  const visibleTodos = getVisibleTodos();
+
+  visibleTodos.forEach((todo) => {
     const item = document.createElement("li");
     item.className = "todo-item";
 
@@ -81,9 +93,27 @@ function renderTodos() {
     list.append(item);
   });
 
-  emptyMessage.classList.toggle("hidden", todos.length > 0);
+  emptyMessage.classList.toggle("hidden", visibleTodos.length > 0);
   clearButton.classList.toggle("hidden", todos.length === 0);
   updateStats();
+}
+
+function getVisibleTodos() {
+  if (currentFilter === "active") {
+    return todos.filter((todo) => !todo.completed);
+  }
+
+  if (currentFilter === "completed") {
+    return todos.filter((todo) => todo.completed);
+  }
+
+  return todos;
+}
+
+function updateFilterButtons() {
+  filterButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.filter === currentFilter);
+  });
 }
 
 function updateStats() {

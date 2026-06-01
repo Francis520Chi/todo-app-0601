@@ -32,6 +32,12 @@
         <span>未完成：0</span>
       </div>
 
+      <div class="filter-controls" aria-label="篩選任務">
+        <button class="filter-button active" type="button" data-filter="all">全部</button>
+        <button class="filter-button" type="button" data-filter="active">未完成</button>
+        <button class="filter-button" type="button" data-filter="completed">已完成</button>
+      </div>
+
       <button id="clear-button" class="clear-button hidden" type="button">清除全部</button>
 
       <ul id="todo-list" class="todo-list" aria-label="待辦任務"></ul>
