@@ -255,6 +255,17 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.todo-content {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.todo-date {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .todo-item.completed .todo-text {
   color: var(--muted);
   text-decoration: line-through;

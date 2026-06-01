@@ -31,6 +31,7 @@ form.addEventListener("submit", (event) => {
     id: Date.now(),
     text,
     completed: false,
+    createdAt: new Date().toISOString(),
   });
 
   input.value = "";
@@ -89,9 +90,21 @@ function renderTodos() {
       saveAndRender();
     });
 
+    const content = document.createElement("div");
+    content.className = "todo-content";
+
     const text = document.createElement("span");
     text.className = "todo-text";
     text.textContent = todo.text;
+
+    content.append(text);
+
+    if (todo.createdAt) {
+      const date = document.createElement("span");
+      date.className = "todo-date";
+      date.textContent = `建立於：${formatTodoDate(todo.createdAt)}`;
+      content.append(date);
+    }
 
     const editButton = document.createElement("button");
     editButton.type = "button";
@@ -127,7 +140,7 @@ function renderTodos() {
       saveAndRender();
     });
 
-    item.append(checkbox, text, editButton, deleteButton);
+    item.append(checkbox, content, editButton, deleteButton);
     list.append(item);
   });
 
@@ -172,6 +185,22 @@ function updateStats() {
     <span>已完成：${completedCount}</span>
     <span>未完成：${activeCount}</span>
   `;
+}
+
+function formatTodoDate(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleString("zh-TW", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function applySavedTheme() {
