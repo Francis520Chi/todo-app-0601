@@ -172,7 +172,7 @@ h1 {
 
 .todo-item {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
   padding: 12px;
@@ -196,8 +196,25 @@ h1 {
   text-decoration: line-through;
 }
 
+.edit-button,
 .delete-button {
   padding: 8px 10px;
+}
+
+.edit-button {
+  border: 0;
+  border-radius: 8px;
+  color: var(--accent-dark);
+  background: #eaf4ee;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.edit-button:hover {
+  background: #d9ebdf;
+}
+
+.delete-button {
   color: var(--danger);
   background: #f8eaea;
 }

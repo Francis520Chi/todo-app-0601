@@ -78,6 +78,29 @@ function renderTodos() {
     text.className = "todo-text";
     text.textContent = todo.text;
 
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "edit-button";
+    editButton.textContent = "編輯";
+    editButton.setAttribute("aria-label", `編輯「${todo.text}」`);
+
+    editButton.addEventListener("click", () => {
+      const newText = prompt("請輸入新的任務內容：", todo.text);
+
+      if (newText === null) {
+        return;
+      }
+
+      const trimmedText = newText.trim();
+
+      if (trimmedText === "") {
+        return;
+      }
+
+      todo.text = trimmedText;
+      saveAndRender();
+    });
+
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "delete-button";
@@ -89,7 +112,7 @@ function renderTodos() {
       saveAndRender();
     });
 
-    item.append(checkbox, text, deleteButton);
+    item.append(checkbox, text, editButton, deleteButton);
     list.append(item);
   });
 
