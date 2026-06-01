@@ -4,12 +4,14 @@ const list = document.querySelector("#todo-list");
 const emptyMessage = document.querySelector("#empty-message");
 const clearButton = document.querySelector("#clear-button");
 const stats = document.querySelector("#todo-stats");
+const searchInput = document.querySelector("#search-input");
 const filterButtons = document.querySelectorAll(".filter-button");
 
 const storageKey = "codex-todo-items";
 
 let todos = loadTodos();
 let currentFilter = "all";
+let searchText = "";
 
 renderTodos();
 
@@ -38,6 +40,11 @@ filterButtons.forEach((button) => {
     updateFilterButtons();
     renderTodos();
   });
+});
+
+searchInput.addEventListener("input", () => {
+  searchText = searchInput.value.trim().toLowerCase();
+  renderTodos();
 });
 
 clearButton.addEventListener("click", () => {
@@ -122,15 +129,23 @@ function renderTodos() {
 }
 
 function getVisibleTodos() {
+  let filteredTodos = todos;
+
   if (currentFilter === "active") {
-    return todos.filter((todo) => !todo.completed);
+    filteredTodos = filteredTodos.filter((todo) => !todo.completed);
   }
 
   if (currentFilter === "completed") {
-    return todos.filter((todo) => todo.completed);
+    filteredTodos = filteredTodos.filter((todo) => todo.completed);
   }
 
-  return todos;
+  if (searchText !== "") {
+    filteredTodos = filteredTodos.filter((todo) =>
+      todo.text.toLowerCase().includes(searchText)
+    );
+  }
+
+  return filteredTodos;
 }
 
 function updateFilterButtons() {
