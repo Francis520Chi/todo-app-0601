@@ -6,13 +6,16 @@ const clearButton = document.querySelector("#clear-button");
 const stats = document.querySelector("#todo-stats");
 const searchInput = document.querySelector("#search-input");
 const filterButtons = document.querySelectorAll(".filter-button");
+const themeToggle = document.querySelector("#theme-toggle");
 
 const storageKey = "codex-todo-items";
+const themeStorageKey = "codex-todo-theme";
 
 let todos = loadTodos();
 let currentFilter = "all";
 let searchText = "";
 
+applySavedTheme();
 renderTodos();
 
 form.addEventListener("submit", (event) => {
@@ -45,6 +48,11 @@ filterButtons.forEach((button) => {
 searchInput.addEventListener("input", () => {
   searchText = searchInput.value.trim().toLowerCase();
   renderTodos();
+});
+
+themeToggle.addEventListener("click", () => {
+  const shouldUseDarkMode = !document.body.classList.contains("dark-mode");
+  setTheme(shouldUseDarkMode);
 });
 
 clearButton.addEventListener("click", () => {
@@ -164,6 +172,17 @@ function updateStats() {
     <span>已完成：${completedCount}</span>
     <span>未完成：${activeCount}</span>
   `;
+}
+
+function applySavedTheme() {
+  const savedTheme = localStorage.getItem(themeStorageKey);
+  setTheme(savedTheme === "dark");
+}
+
+function setTheme(shouldUseDarkMode) {
+  document.body.classList.toggle("dark-mode", shouldUseDarkMode);
+  themeToggle.textContent = shouldUseDarkMode ? "關閉深色模式" : "開啟深色模式";
+  localStorage.setItem(themeStorageKey, shouldUseDarkMode ? "dark" : "light");
 }
 
 function saveAndRender() {
