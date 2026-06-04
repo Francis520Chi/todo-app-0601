@@ -1,6 +1,7 @@
 const form = document.querySelector("#todo-form");
 const input = document.querySelector("#todo-input");
 const categorySelect = document.querySelector("#category-select");
+const categoryFilter = document.querySelector("#category-filter");
 const list = document.querySelector("#todo-list");
 const emptyMessage = document.querySelector("#empty-message");
 const clearButton = document.querySelector("#clear-button");
@@ -18,6 +19,7 @@ const allowedCategories = ["工作", "生活", "學習", "其他"];
 
 let todos = loadTodos();
 let currentFilter = "all";
+let currentCategoryFilter = "全部分類";
 let searchText = "";
 
 applySavedTheme();
@@ -54,6 +56,11 @@ filterButtons.forEach((button) => {
 
 searchInput.addEventListener("input", () => {
   searchText = searchInput.value.trim().toLowerCase();
+  renderTodos();
+});
+
+categoryFilter.addEventListener("change", () => {
+  currentCategoryFilter = categoryFilter.value;
   renderTodos();
 });
 
@@ -188,6 +195,12 @@ function getVisibleTodos() {
 
   if (currentFilter === "completed") {
     filteredTodos = filteredTodos.filter((todo) => todo.completed);
+  }
+
+  if (currentCategoryFilter !== "全部分類") {
+    filteredTodos = filteredTodos.filter(
+      (todo) => normalizeCategory(todo.category) === currentCategoryFilter
+    );
   }
 
   if (searchText !== "") {

@@ -133,6 +133,29 @@ h1 {
   width: 100%;
 }
 
+.category-filter-label {
+  display: block;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.category-filter {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--panel);
+}
+
+.category-filter:focus {
+  outline: 3px solid rgba(47, 125, 89, 0.18);
+  border-color: var(--accent);
+}
+
 .input-row button,
 .delete-button {
   border: 0;
