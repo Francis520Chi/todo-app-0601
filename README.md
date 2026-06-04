@@ -50,6 +50,13 @@ Initial todo app
 Add todo stats
 Add todo filters
 Add edit todo
+Add README
+Add todo search
+Add dark mode
+Add todo created date
+Add manual testing checklist
+Document testing checklist
+Add todo import export
 ```
 
 ## 學到的重點
@@ -61,8 +68,7 @@ Add edit todo
 - 如何把專案整理成可閱讀的結構
 
 ## 下一步可以改進
-- 加入搜尋任務功能
-- 加入任務建立日期
-- 加入深色模式
 - 改用後端或資料庫保存任務
-- 上傳到 GitHub
+- 加入任務分類或標籤
+- 加入拖曳排序
+- 加入自動化測試
