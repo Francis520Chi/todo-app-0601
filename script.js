@@ -7,6 +7,9 @@ const stats = document.querySelector("#todo-stats");
 const searchInput = document.querySelector("#search-input");
 const filterButtons = document.querySelectorAll(".filter-button");
 const themeToggle = document.querySelector("#theme-toggle");
+const exportButton = document.querySelector("#export-button");
+const importButton = document.querySelector("#import-button");
+const importFile = document.querySelector("#import-file");
 
 const storageKey = "codex-todo-items";
 const themeStorageKey = "codex-todo-theme";
@@ -54,6 +57,25 @@ searchInput.addEventListener("input", () => {
 themeToggle.addEventListener("click", () => {
   const shouldUseDarkMode = !document.body.classList.contains("dark-mode");
   setTheme(shouldUseDarkMode);
+});
+
+exportButton.addEventListener("click", () => {
+  exportTodos();
+});
+
+importButton.addEventListener("click", () => {
+  importFile.click();
+});
+
+importFile.addEventListener("change", () => {
+  const file = importFile.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  importTodos(file);
+  importFile.value = "";
 });
 
 clearButton.addEventListener("click", () => {
@@ -212,6 +234,81 @@ function setTheme(shouldUseDarkMode) {
   document.body.classList.toggle("dark-mode", shouldUseDarkMode);
   themeToggle.textContent = shouldUseDarkMode ? "關閉深色模式" : "開啟深色模式";
   localStorage.setItem(themeStorageKey, shouldUseDarkMode ? "dark" : "light");
+}
+
+function exportTodos() {
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    todos,
+  };
+  const fileContent = JSON.stringify(backup, null, 2);
+  const file = new Blob([fileContent], { type: "application/json" });
+  const fileUrl = URL.createObjectURL(file);
+  const downloadLink = document.createElement("a");
+
+  downloadLink.href = fileUrl;
+  downloadLink.download = `todo-backup-${formatBackupDate(new Date())}.json`;
+  downloadLink.click();
+  URL.revokeObjectURL(fileUrl);
+}
+
+function importTodos(file) {
+  const reader = new FileReader();
+
+  reader.addEventListener("load", () => {
+    try {
+      const importedData = JSON.parse(reader.result);
+      const importedTodos = normalizeImportedTodos(importedData);
+
+      if (importedTodos.length === 0) {
+        alert("匯入檔案沒有可用的任務資料。");
+        return;
+      }
+
+      const confirmed = confirm("匯入後會取代目前所有任務，確定要繼續嗎？");
+
+      if (!confirmed) {
+        return;
+      }
+
+      todos = importedTodos;
+      saveAndRender();
+      alert("任務資料已匯入。");
+    } catch {
+      alert("匯入失敗，請確認檔案是正確的 JSON 備份。");
+    }
+  });
+
+  reader.readAsText(file);
+}
+
+function normalizeImportedTodos(importedData) {
+  const importedTodos = Array.isArray(importedData)
+    ? importedData
+    : importedData.todos;
+
+  if (!Array.isArray(importedTodos)) {
+    throw new Error("Invalid todo backup");
+  }
+
+  return importedTodos
+    .filter((todo) => typeof todo.text === "string" && todo.text.trim() !== "")
+    .map((todo) => ({
+      id: Number.isFinite(todo.id) ? todo.id : Date.now() + Math.random(),
+      text: todo.text.trim(),
+      completed: Boolean(todo.completed),
+      createdAt: typeof todo.createdAt === "string" ? todo.createdAt : undefined,
+    }));
+}
+
+function formatBackupDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}${month}${day}-${hour}${minute}`;
 }
 
 function saveAndRender() {

@@ -206,6 +206,32 @@ h1 {
   background: var(--accent);
 }
 
+.data-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.data-button {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--accent-dark);
+  background: var(--edit-bg);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.data-button:hover {
+  background: var(--edit-hover);
+}
+
+.file-input {
+  display: none;
+}
+
 .clear-button {
   width: 100%;
   margin-top: 18px;
@@ -318,6 +344,10 @@ h1 {
   }
 
   .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .data-controls {
     grid-template-columns: 1fr;
   }
 }

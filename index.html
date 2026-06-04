@@ -48,6 +48,12 @@
         <button class="filter-button" type="button" data-filter="completed">已完成</button>
       </div>
 
+      <div class="data-controls" aria-label="備份任務資料">
+        <button id="export-button" class="data-button" type="button">匯出資料</button>
+        <button id="import-button" class="data-button" type="button">匯入資料</button>
+        <input id="import-file" class="file-input" type="file" accept="application/json">
+      </div>
+
       <button id="clear-button" class="clear-button hidden" type="button">清除全部</button>
 
       <ul id="todo-list" class="todo-list" aria-label="待辦任務"></ul>
