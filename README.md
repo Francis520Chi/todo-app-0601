@@ -35,7 +35,11 @@ styles.css   畫面樣式
 script.js    App 互動邏輯
 AGENTS.md    個人 Codex 工作規則
 README.md    專案說明文件
+TESTING.md   手動測試清單
 ```
+
+## 測試方式
+此專案目前使用手動測試。每次修改、commit 或 push 前，可以參考 `TESTING.md` 檢查主要功能是否正常。
 
 ## 開發流程紀錄
 目前已建立的 Git 版本紀錄：
