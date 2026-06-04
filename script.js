@@ -1,5 +1,6 @@
 const form = document.querySelector("#todo-form");
 const input = document.querySelector("#todo-input");
+const categorySelect = document.querySelector("#category-select");
 const list = document.querySelector("#todo-list");
 const emptyMessage = document.querySelector("#empty-message");
 const clearButton = document.querySelector("#clear-button");
@@ -13,6 +14,7 @@ const importFile = document.querySelector("#import-file");
 
 const storageKey = "codex-todo-items";
 const themeStorageKey = "codex-todo-theme";
+const allowedCategories = ["工作", "生活", "學習", "其他"];
 
 let todos = loadTodos();
 let currentFilter = "all";
@@ -33,6 +35,7 @@ form.addEventListener("submit", (event) => {
   todos.push({
     id: Date.now(),
     text,
+    category: normalizeCategory(categorySelect.value),
     completed: false,
     createdAt: new Date().toISOString(),
   });
@@ -120,6 +123,11 @@ function renderTodos() {
     text.textContent = todo.text;
 
     content.append(text);
+
+    const category = document.createElement("span");
+    category.className = "todo-category";
+    category.textContent = `分類：${normalizeCategory(todo.category)}`;
+    content.append(category);
 
     if (todo.createdAt) {
       const date = document.createElement("span");
@@ -293,12 +301,25 @@ function normalizeImportedTodos(importedData) {
 
   return importedTodos
     .filter((todo) => typeof todo.text === "string" && todo.text.trim() !== "")
-    .map((todo) => ({
-      id: Number.isFinite(todo.id) ? todo.id : Date.now() + Math.random(),
-      text: todo.text.trim(),
-      completed: Boolean(todo.completed),
-      createdAt: typeof todo.createdAt === "string" ? todo.createdAt : undefined,
-    }));
+    .map(normalizeTodo);
+}
+
+function normalizeTodo(todo) {
+  return {
+    id: Number.isFinite(todo.id) ? todo.id : Date.now() + Math.random(),
+    text: todo.text.trim(),
+    category: normalizeCategory(todo.category),
+    completed: Boolean(todo.completed),
+    createdAt: typeof todo.createdAt === "string" ? todo.createdAt : undefined,
+  };
+}
+
+function normalizeCategory(category) {
+  if (allowedCategories.includes(category)) {
+    return category;
+  }
+
+  return "其他";
 }
 
 function formatBackupDate(date) {
@@ -324,7 +345,15 @@ function loadTodos() {
   }
 
   try {
-    return JSON.parse(savedTodos);
+    const parsedTodos = JSON.parse(savedTodos);
+
+    if (!Array.isArray(parsedTodos)) {
+      return [];
+    }
+
+    return parsedTodos
+      .filter((todo) => typeof todo.text === "string" && todo.text.trim() !== "")
+      .map(normalizeTodo);
   } catch {
     return [];
   }

@@ -49,7 +49,8 @@ body.dark-mode {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -112,7 +113,8 @@ h1 {
   gap: 10px;
 }
 
-.input-row input {
+.input-row input,
+.category-select {
   min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--border);
@@ -121,9 +123,14 @@ h1 {
   background: var(--panel);
 }
 
-.input-row input:focus {
+.input-row input:focus,
+.category-select:focus {
   outline: 3px solid rgba(47, 125, 89, 0.18);
   border-color: var(--accent);
+}
+
+.category-select {
+  width: 100%;
 }
 
 .input-row button,
@@ -290,6 +297,17 @@ h1 {
 .todo-date {
   color: var(--muted);
   font-size: 13px;
+}
+
+.todo-category {
+  width: fit-content;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent-dark);
+  background: var(--edit-bg);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .todo-item.completed .todo-text {
