@@ -105,6 +105,7 @@ function renderTodos() {
   const visibleTodos = getVisibleTodos();
 
   visibleTodos.forEach((todo) => {
+    const todoIndex = todos.findIndex((item) => item.id === todo.id);
     const item = document.createElement("li");
     item.className = "todo-item";
 
@@ -177,7 +178,13 @@ function renderTodos() {
       saveAndRender();
     });
 
-    item.append(checkbox, content, editButton, deleteButton);
+    if (canReorderTodos()) {
+      const moveControls = createMoveControls(todoIndex);
+      item.append(checkbox, content, moveControls, editButton, deleteButton);
+    } else {
+      item.append(checkbox, content, editButton, deleteButton);
+    }
+
     list.append(item);
   });
 
@@ -228,6 +235,50 @@ function updateStats() {
     <span>已完成：${completedCount}</span>
     <span>未完成：${activeCount}</span>
   `;
+}
+
+function createMoveControls(todoIndex) {
+  const controls = document.createElement("div");
+  controls.className = "move-controls";
+
+  const moveUpButton = document.createElement("button");
+  moveUpButton.type = "button";
+  moveUpButton.className = "move-button";
+  moveUpButton.textContent = "上移";
+  moveUpButton.disabled = todoIndex === 0;
+
+  moveUpButton.addEventListener("click", () => {
+    moveTodo(todoIndex, todoIndex - 1);
+  });
+
+  const moveDownButton = document.createElement("button");
+  moveDownButton.type = "button";
+  moveDownButton.className = "move-button";
+  moveDownButton.textContent = "下移";
+  moveDownButton.disabled = todoIndex === todos.length - 1;
+
+  moveDownButton.addEventListener("click", () => {
+    moveTodo(todoIndex, todoIndex + 1);
+  });
+
+  controls.append(moveUpButton, moveDownButton);
+
+  return controls;
+}
+
+function moveTodo(fromIndex, toIndex) {
+  if (toIndex < 0 || toIndex >= todos.length) {
+    return;
+  }
+
+  const movedTodo = todos[fromIndex];
+  todos[fromIndex] = todos[toIndex];
+  todos[toIndex] = movedTodo;
+  saveAndRender();
+}
+
+function canReorderTodos() {
+  return currentFilter === "all" && currentCategoryFilter === "全部分類" && searchText === "";
 }
 
 function formatTodoDate(value) {

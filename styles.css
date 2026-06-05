@@ -292,7 +292,7 @@ h1 {
 
 .todo-item {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
   gap: 12px;
   padding: 12px;
@@ -336,6 +336,32 @@ h1 {
 .todo-item.completed .todo-text {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+.move-controls {
+  display: grid;
+  gap: 6px;
+}
+
+.move-button {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--panel);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.move-button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.move-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .edit-button,
@@ -390,5 +416,19 @@ h1 {
 
   .data-controls {
     grid-template-columns: 1fr;
+  }
+
+  .todo-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .move-controls,
+  .edit-button,
+  .delete-button {
+    grid-column: 2;
+  }
+
+  .move-controls {
+    grid-template-columns: repeat(2, max-content);
   }
 }
