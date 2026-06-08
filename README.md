@@ -19,6 +19,7 @@
 - 任務分類
 - 依分類篩選任務
 - 調整任務順序
+- 自動化測試資料邏輯
 - 使用 `localStorage` 保存任務資料
 
 ## 使用方式
@@ -36,14 +37,22 @@ C:\Users\F\OneDrive\Documents\0601\index.html
 ```text
 index.html   網頁結構
 styles.css   畫面樣式
+todo-logic.js 資料邏輯
 script.js    App 互動邏輯
 AGENTS.md    個人 Codex 工作規則
 README.md    專案說明文件
 TESTING.md   手動測試清單
+tests/       自動化測試
 ```
 
 ## 測試方式
 此專案目前使用手動測試。每次修改、commit 或 push 前，可以參考 `TESTING.md` 檢查主要功能是否正常。
+
+也可以執行第一版自動化測試，檢查資料邏輯：
+
+```powershell
+node tests/todo-logic.test.js
+```
 
 ## 開發流程紀錄
 目前已建立的 Git 版本紀錄：
@@ -72,4 +81,4 @@ Add todo import export
 
 ## 下一步可以改進
 - 改用後端或資料庫保存任務
-- 加入自動化測試
+- 擴充更多自動化測試
