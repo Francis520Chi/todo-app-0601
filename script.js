@@ -22,10 +22,33 @@ let currentFilter = "all";
 let currentCategoryFilter = "全部分類";
 let searchText = "";
 
-applySavedTheme();
-renderTodos();
+initializeApp();
 
-form.addEventListener("submit", (event) => {
+function initializeApp() {
+  applySavedTheme();
+  renderTodos();
+  registerEventListeners();
+}
+
+function registerEventListeners() {
+  form.addEventListener("submit", handleTodoSubmit);
+
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      handleFilterClick(button);
+    });
+  });
+
+  searchInput.addEventListener("input", handleSearchInput);
+  categoryFilter.addEventListener("change", handleCategoryFilterChange);
+  themeToggle.addEventListener("click", handleThemeToggle);
+  exportButton.addEventListener("click", exportTodos);
+  importButton.addEventListener("click", openImportFilePicker);
+  importFile.addEventListener("change", handleImportFileChange);
+  clearButton.addEventListener("click", handleClearTodos);
+}
+
+function handleTodoSubmit(event) {
   event.preventDefault();
 
   const text = input.value.trim();
@@ -44,40 +67,34 @@ form.addEventListener("submit", (event) => {
 
   input.value = "";
   saveAndRender();
-});
+}
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    currentFilter = button.dataset.filter;
-    updateFilterButtons();
-    renderTodos();
-  });
-});
+function handleFilterClick(button) {
+  currentFilter = button.dataset.filter;
+  updateFilterButtons();
+  renderTodos();
+}
 
-searchInput.addEventListener("input", () => {
+function handleSearchInput() {
   searchText = searchInput.value.trim().toLowerCase();
   renderTodos();
-});
+}
 
-categoryFilter.addEventListener("change", () => {
+function handleCategoryFilterChange() {
   currentCategoryFilter = categoryFilter.value;
   renderTodos();
-});
+}
 
-themeToggle.addEventListener("click", () => {
+function handleThemeToggle() {
   const shouldUseDarkMode = !document.body.classList.contains("dark-mode");
   setTheme(shouldUseDarkMode);
-});
+}
 
-exportButton.addEventListener("click", () => {
-  exportTodos();
-});
-
-importButton.addEventListener("click", () => {
+function openImportFilePicker() {
   importFile.click();
-});
+}
 
-importFile.addEventListener("change", () => {
+function handleImportFileChange() {
   const file = importFile.files[0];
 
   if (!file) {
@@ -86,9 +103,9 @@ importFile.addEventListener("change", () => {
 
   importTodos(file);
   importFile.value = "";
-});
+}
 
-clearButton.addEventListener("click", () => {
+function handleClearTodos() {
   const confirmed = confirm("確定要清除全部任務嗎？這個動作無法復原。");
 
   if (!confirmed) {
@@ -97,7 +114,7 @@ clearButton.addEventListener("click", () => {
 
   todos = [];
   saveAndRender();
-});
+}
 
 function renderTodos() {
   list.innerHTML = "";
@@ -105,92 +122,145 @@ function renderTodos() {
   const visibleTodos = getVisibleTodos();
 
   visibleTodos.forEach((todo) => {
-    const todoIndex = todos.findIndex((item) => item.id === todo.id);
-    const item = document.createElement("li");
-    item.className = "todo-item";
-
-    if (todo.completed) {
-      item.classList.add("completed");
-    }
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = todo.completed;
-    checkbox.setAttribute("aria-label", `標記「${todo.text}」是否完成`);
-
-    checkbox.addEventListener("change", () => {
-      todo.completed = checkbox.checked;
-      saveAndRender();
-    });
-
-    const content = document.createElement("div");
-    content.className = "todo-content";
-
-    const text = document.createElement("span");
-    text.className = "todo-text";
-    text.textContent = todo.text;
-
-    content.append(text);
-
-    const category = document.createElement("span");
-    category.className = "todo-category";
-    category.textContent = `分類：${normalizeCategory(todo.category)}`;
-    content.append(category);
-
-    if (todo.createdAt) {
-      const date = document.createElement("span");
-      date.className = "todo-date";
-      date.textContent = `建立於：${formatTodoDate(todo.createdAt)}`;
-      content.append(date);
-    }
-
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.className = "edit-button";
-    editButton.textContent = "編輯";
-    editButton.setAttribute("aria-label", `編輯「${todo.text}」`);
-
-    editButton.addEventListener("click", () => {
-      const newText = prompt("請輸入新的任務內容：", todo.text);
-
-      if (newText === null) {
-        return;
-      }
-
-      const trimmedText = newText.trim();
-
-      if (trimmedText === "") {
-        return;
-      }
-
-      todo.text = trimmedText;
-      saveAndRender();
-    });
-
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "delete-button";
-    deleteButton.textContent = "刪除";
-    deleteButton.setAttribute("aria-label", `刪除「${todo.text}」`);
-
-    deleteButton.addEventListener("click", () => {
-      todos = todos.filter((itemToKeep) => itemToKeep.id !== todo.id);
-      saveAndRender();
-    });
-
-    if (canReorderTodos()) {
-      const moveControls = createMoveControls(todoIndex);
-      item.append(checkbox, content, moveControls, editButton, deleteButton);
-    } else {
-      item.append(checkbox, content, editButton, deleteButton);
-    }
-
-    list.append(item);
+    list.append(createTodoItem(todo));
   });
 
   emptyMessage.classList.toggle("hidden", visibleTodos.length > 0);
   clearButton.classList.toggle("hidden", todos.length === 0);
   updateStats();
+}
+
+function createTodoItem(todo) {
+  const todoIndex = todos.findIndex((item) => item.id === todo.id);
+  const item = document.createElement("li");
+  item.className = "todo-item";
+
+  if (todo.completed) {
+    item.classList.add("completed");
+  }
+
+  const checkbox = createTodoCheckbox(todo);
+  const content = createTodoContent(todo);
+  const editButton = createEditButton(todo);
+  const deleteButton = createDeleteButton(todo);
+
+  if (canReorderTodos()) {
+    const moveControls = createMoveControls(todoIndex);
+    item.append(checkbox, content, moveControls, editButton, deleteButton);
+  } else {
+    item.append(checkbox, content, editButton, deleteButton);
+  }
+
+  return item;
+}
+
+function createTodoCheckbox(todo) {
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = todo.completed;
+  checkbox.setAttribute("aria-label", `標記「${todo.text}」是否完成`);
+
+  checkbox.addEventListener("change", () => {
+    todo.completed = checkbox.checked;
+    saveAndRender();
+  });
+
+  return checkbox;
+}
+
+function createTodoContent(todo) {
+  const content = document.createElement("div");
+  content.className = "todo-content";
+
+  const text = document.createElement("span");
+  text.className = "todo-text";
+  text.textContent = todo.text;
+  content.append(text);
+
+  const category = document.createElement("span");
+  category.className = "todo-category";
+  category.textContent = `分類：${normalizeCategory(todo.category)}`;
+  content.append(category);
+
+  if (todo.createdAt) {
+    const date = document.createElement("span");
+    date.className = "todo-date";
+    date.textContent = `建立於：${formatTodoDate(todo.createdAt)}`;
+    content.append(date);
+  }
+
+  return content;
+}
+
+function createEditButton(todo) {
+  const editButton = document.createElement("button");
+  editButton.type = "button";
+  editButton.className = "edit-button";
+  editButton.textContent = "編輯";
+  editButton.setAttribute("aria-label", `編輯「${todo.text}」`);
+
+  editButton.addEventListener("click", () => {
+    const newText = prompt("請輸入新的任務內容：", todo.text);
+
+    if (newText === null) {
+      return;
+    }
+
+    const trimmedText = newText.trim();
+
+    if (trimmedText === "") {
+      return;
+    }
+
+    todo.text = trimmedText;
+    saveAndRender();
+  });
+
+  return editButton;
+}
+
+function createDeleteButton(todo) {
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "delete-button";
+  deleteButton.textContent = "刪除";
+  deleteButton.setAttribute("aria-label", `刪除「${todo.text}」`);
+
+  deleteButton.addEventListener("click", () => {
+    todos = todos.filter((itemToKeep) => itemToKeep.id !== todo.id);
+    saveAndRender();
+  });
+
+  return deleteButton;
+}
+
+function createMoveControls(todoIndex) {
+  const controls = document.createElement("div");
+  controls.className = "move-controls";
+
+  const moveUpButton = document.createElement("button");
+  moveUpButton.type = "button";
+  moveUpButton.className = "move-button";
+  moveUpButton.textContent = "上移";
+  moveUpButton.disabled = todoIndex === 0;
+
+  moveUpButton.addEventListener("click", () => {
+    moveTodo(todoIndex, todoIndex - 1);
+  });
+
+  const moveDownButton = document.createElement("button");
+  moveDownButton.type = "button";
+  moveDownButton.className = "move-button";
+  moveDownButton.textContent = "下移";
+  moveDownButton.disabled = todoIndex === todos.length - 1;
+
+  moveDownButton.addEventListener("click", () => {
+    moveTodo(todoIndex, todoIndex + 1);
+  });
+
+  controls.append(moveUpButton, moveDownButton);
+
+  return controls;
 }
 
 function getVisibleTodos() {
@@ -237,35 +307,6 @@ function updateStats() {
   `;
 }
 
-function createMoveControls(todoIndex) {
-  const controls = document.createElement("div");
-  controls.className = "move-controls";
-
-  const moveUpButton = document.createElement("button");
-  moveUpButton.type = "button";
-  moveUpButton.className = "move-button";
-  moveUpButton.textContent = "上移";
-  moveUpButton.disabled = todoIndex === 0;
-
-  moveUpButton.addEventListener("click", () => {
-    moveTodo(todoIndex, todoIndex - 1);
-  });
-
-  const moveDownButton = document.createElement("button");
-  moveDownButton.type = "button";
-  moveDownButton.className = "move-button";
-  moveDownButton.textContent = "下移";
-  moveDownButton.disabled = todoIndex === todos.length - 1;
-
-  moveDownButton.addEventListener("click", () => {
-    moveTodo(todoIndex, todoIndex + 1);
-  });
-
-  controls.append(moveUpButton, moveDownButton);
-
-  return controls;
-}
-
 function moveTodo(fromIndex, toIndex) {
   if (toIndex < 0 || toIndex >= todos.length) {
     return;
@@ -278,23 +319,11 @@ function moveTodo(fromIndex, toIndex) {
 }
 
 function canReorderTodos() {
-  return currentFilter === "all" && currentCategoryFilter === "全部分類" && searchText === "";
-}
-
-function formatTodoDate(value) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  return date.toLocaleString("zh-TW", {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return (
+    currentFilter === "all" &&
+    currentCategoryFilter === "全部分類" &&
+    searchText === ""
+  );
 }
 
 function applySavedTheme() {
@@ -354,6 +383,33 @@ function importTodos(file) {
   reader.readAsText(file);
 }
 
+function saveAndRender() {
+  localStorage.setItem(storageKey, JSON.stringify(todos));
+  renderTodos();
+}
+
+function loadTodos() {
+  const savedTodos = localStorage.getItem(storageKey);
+
+  if (!savedTodos) {
+    return [];
+  }
+
+  try {
+    const parsedTodos = JSON.parse(savedTodos);
+
+    if (!Array.isArray(parsedTodos)) {
+      return [];
+    }
+
+    return parsedTodos
+      .filter((todo) => typeof todo.text === "string" && todo.text.trim() !== "")
+      .map(normalizeTodo);
+  } catch {
+    return [];
+  }
+}
+
 function normalizeImportedTodos(importedData) {
   const importedTodos = Array.isArray(importedData)
     ? importedData
@@ -386,6 +442,22 @@ function normalizeCategory(category) {
   return "其他";
 }
 
+function formatTodoDate(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleString("zh-TW", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function formatBackupDate(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -394,31 +466,4 @@ function formatBackupDate(date) {
   const minute = String(date.getMinutes()).padStart(2, "0");
 
   return `${year}${month}${day}-${hour}${minute}`;
-}
-
-function saveAndRender() {
-  localStorage.setItem(storageKey, JSON.stringify(todos));
-  renderTodos();
-}
-
-function loadTodos() {
-  const savedTodos = localStorage.getItem(storageKey);
-
-  if (!savedTodos) {
-    return [];
-  }
-
-  try {
-    const parsedTodos = JSON.parse(savedTodos);
-
-    if (!Array.isArray(parsedTodos)) {
-      return [];
-    }
-
-    return parsedTodos
-      .filter((todo) => typeof todo.text === "string" && todo.text.trim() !== "")
-      .map(normalizeTodo);
-  } catch {
-    return [];
-  }
 }
